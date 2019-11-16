@@ -25,6 +25,8 @@
 # SPDX-License-Identifier: BSD-2-Clause
 ################################################################################
 
+add_subdirectory(test)
+
 set_kernel_flags()
 
 add_library(klib

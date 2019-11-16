@@ -10,6 +10,9 @@ build_script:
 - cmake -DCMAKE_C_COMPILER=clang-8 -DCMAKE_CXX_COMPILER=clang++-8 -DOCTARINE_BUILD_DOCS=Off ..
 - make -j2
 
+test_script:
+  - make test
+
 artifacts:
   - path: build/kernel.bin
     name: kernel

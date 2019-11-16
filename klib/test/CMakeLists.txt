@@ -25,44 +25,20 @@
 # SPDX-License-Identifier: BSD-2-Clause
 ################################################################################
 
-cmake_minimum_required(VERSION 3.12)
-include(cmake/asm.cmake)
+add_executable(intrusive_test
+	list.cpp
+)
 
-project(octarine)
+target_link_libraries(intrusive_test
+	PRIVATE
+		gtest_main
+)
 
-enable_language(ASM_NASM)
+target_include_directories(intrusive_test
+	PRIVATE
+		$<TARGET_PROPERTY:klib,INTERFACE_INCLUDE_DIRECTORIES>
+)
 
-include(cmake/config.cmake)
-include(cmake/toolcfg.cmake)
+target_compile_definitions(intrusive_test PRIVATE INTRUSIVE_TEST)
 
-enable_testing()
-
-set(CMAKE_ASM_NASM_LINKER_PREFERENCE_PROPAGATES 0)
-set(CMAKE_CXX_LINKER_PREFERENCE_PROPAGATES 0)
-set(CMAKE_C_LINKER_PREFERENCE_PROPAGATES 0) 
-set(CMAKE_C_IMPLICIT_LINK_LIBRARIES)
-set(CMAKE_CXX_IMPLICIT_LINK_LIBRARIES)
-set(CMAKE_CXX_STANDARD 17)
-
-add_subdirectory(tools)
-
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g -Ui386")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Ui386")
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-include_directories (${octarine_SOURCE_DIR}/include/)
-
-# set up some inf
-
-
-# Contrib needs to be first so that other targets can refer to libcxx
-add_subdirectory(contrib)
-
-add_subdirectory(arch)
-
-add_subdirectory(klib)
-add_subdirectory(kernel)
-
-if(OCTARINE_BUILD_DOCS)
-    add_subdirectory(docs)
-endif()
+add_test(NAME test_intrusive COMMAND intrusive_test)
