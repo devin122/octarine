@@ -31,7 +31,6 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include <sys/cdefs.h>
 
 #if __cplusplus >= 201703L
 #define KLIB_NORETURN [[noreturn]]
@@ -41,7 +40,10 @@
 #define KLIB_FORCEINLINE __attribute__((always_inline))
 #endif
 
-BEGIN_DEF
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void* tlsf_malloc(size_t);
 void tlsf_free(void*);
 void* tlsf_realloc(void*, size_t);
@@ -54,7 +56,9 @@ static inline void* realloc(void* ptr, size_t size) {
 KLIB_NORETURN void klib_assertion_failed(const char* file, int line,
                                          const char* function, const char* expr,
                                          const char* msg);
-END_DEF
+#ifdef __cplusplus
+}
+#endif
 
 // Hack until we have string formatting in kernel panic
 #define KLIB_FAILED_HACK(f, l, fn, e, m)                                       \
