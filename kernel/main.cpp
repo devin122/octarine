@@ -40,6 +40,7 @@
 
 // TODO this is a hack
 #include "arch/i386/IDT.hpp"
+#include "machine/CPU.hpp"
 
 extern char _low_mapping, _begin_trampoline, _end_trampoline;
 
