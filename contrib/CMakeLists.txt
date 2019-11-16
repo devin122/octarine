@@ -24,12 +24,14 @@
 #
 # SPDX-License-Identifier: BSD-2-Clause
 ################################################################################
-set_kernel_flags()
 
 set(CONTRIB_DIST_DIR "${CMAKE_CURRENT_BINARY_DIR}/dist")
 if(NOT EXISTS "${CONTRIB_DIST_DIR}")
 	file(MAKE_DIRECTORY "${CONTRIB_DIST_DIR}")
 endif()
 
+add_subdirectory(googletest)
+
+set_kernel_flags()
 add_subdirectory(libcxx)
 add_subdirectory(tlsf)

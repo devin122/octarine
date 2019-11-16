@@ -33,3 +33,8 @@ option(OCTARINE_BUILD_DOCS "Build documentation" ON)
 set(OCTARINE_TARGET_ARCH i386 CACHE STRING "Target architecture")
 
 set(OCTARINE_WARNINGS_AS_ERRORS ON CACHE BOOL "Treat compiler warnings as errors")
+
+
+#configuration for gtest
+set(BUILD_GMOCK OFF CACHE BOOL "Builds the googlemock subproject")
+set(INSTALL_GTEST OFF CACHE BOOL "Enable installation of googletest. (Projects embedding googletest may want to turn this OFF.)")
