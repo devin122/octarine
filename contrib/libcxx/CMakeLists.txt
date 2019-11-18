@@ -92,6 +92,7 @@ add_custom_command(
 	OUTPUT "${patch_stamp}"
 	DEPENDS ${patches} "${CMAKE_CURRENT_BINARY_DIR}/apply_patches.cmake"
 	COMMAND "${CMAKE_COMMAND}" -P "${CMAKE_CURRENT_BINARY_DIR}/apply_patches.cmake"
+	COMMAND "${CMAKE_COMMAND}" -E remove -f "${source_dir}/include/stdlib.h"
 	COMMENT "Applying patches to libcxx"
 )
 

@@ -26,31 +26,29 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#include "Thread.hpp"
+#ifndef INTRUSIVE_TEST
+#ifndef STDLIB_H
+#define STDLIB_H
 
-#include <Octarine.hpp>
-#include <klib.h>
-#include <stdlib.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/*
-ThreadStack::ThreadStack(ThreadStack&& other)
-    : _base(other._base), _top(other._top) {
-    other._base = nullptr;
-    other._top = nullptr;
-}
-*/
+void* tlsf_malloc(size_t);
+void tlsf_free(void*);
+void* tlsf_realloc(void*, size_t);
 
-ThreadStack::~ThreadStack() {
-	if (_base != nullptr) {
-		/// \todo Need to re-enable this when it isnt broken
-		// free(_base);
-	}
+static inline void* malloc(size_t size) { return tlsf_malloc(size); }
+static inline void free(void* ptr) { tlsf_free(ptr); }
+static inline void* realloc(void* ptr, size_t size) {
+	return tlsf_realloc(ptr, size);
 }
 
-ThreadStack ThreadStack::make(size_t size) {
-	// TODO we need some way of reporting an error
-	void* stackMemory = malloc(size);
-	KASSERT(stackMemory != nullptr);
-	void* top = ((uint8_t*)stackMemory) + size - 4;
-	return ThreadStack(stackMemory, top);
+#ifdef __cplusplus
 }
+#endif
+
+#endif
+#else
+#include_next <stdlib.h>
+#endif

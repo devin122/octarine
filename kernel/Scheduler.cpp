@@ -36,6 +36,7 @@
 #include <klib.h>
 #include <klib_new.hpp>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include <type_traits>
 
