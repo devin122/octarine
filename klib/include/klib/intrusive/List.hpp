@@ -29,128 +29,138 @@
 #ifndef KLIB_INTRUSIVE_LIST_HPP
 #define KLIB_INTRUSIVE_LIST_HPP
 
+//#include <klib.h>
+#include <klib/util.hpp>
+
 namespace klib {
 namespace intrusive {
 
-template <typename T>
-struct ListHook {
-	T* prev;
-	T* next;
-	ListHook() {
-		prev = nullptr;
-		next = nullptr;
-	}
+struct ListNode {
+	ListNode* prev = nullptr;
+	ListNode* next = nullptr;
+	// constexpr ListNode()
 };
 
-template <typename T, ListHook<T> T::*list_data>
+template <typename T, ListNode T::*list_data>
 class ListIterator {
-	T* elem;
+	ListNode* node_;
+
+	// TODO this shouldnt be duplicated. Need a smarter way of factoring this
+	T* itemFromNode(ListNode* node) const {
+		char* temp = ptr_cast<char*>(node) - memberOffset(list_data);
+		return ptr_cast<T*>(temp);
+	}
 
   public:
-	constexpr ListIterator() : elem(nullptr) {}
+	constexpr ListIterator() : node_(nullptr) {}
 
-	constexpr ListIterator(T* start) : elem(start) {}
+	constexpr ListIterator(ListNode* node) : node_(node) {}
 
 	ListIterator& operator++() {
-		elem = (elem->*list_data).next;
+		node_ = node_->next;
 		return *this;
 	}
 
 	bool operator==(ListIterator<T, list_data>& other) const {
-		return elem == other.elem;
+		return node_ == other.node_;
 	}
 	bool operator!=(ListIterator<T, list_data>& other) const {
-		return elem != other.elem;
+		return node_ != other.node_;
 	}
 
 	ListIterator& operator=(ListIterator<T, list_data> other) {
-		elem = other.elem;
+		node_ = other.node_;
 		return *this;
 	}
 
-	T* operator*() { return elem; }
+	T* operator*() const { return itemFromNode(node_); }
 
-	T* operator->() { return elem; }
+	T* operator->() const { return itemFromNode(node_); }
 };
 
-template <typename T, ListHook<T> T::*list_data>
+template <typename T, ListNode T::*list_data>
 class List {
-	T* m_head;
-	T* m_tail;
+	friend class ListIterator<T, list_data>;
+	ListNode header_{.prev = &header_, .next = &header_};
 
-	void insert(T* elem) {
+	T* itemFromNode(ListNode* node) const {
+		char* temp = ptr_cast<char*>(node) - memberOffset(list_data);
+		return ptr_cast<T*>(temp);
+	}
 
-		// TODO maybe check head==NULL || tail == NULL
-		// but that would make us slower
-		if (m_head == nullptr) {
+	void insertBetween(ListNode* before, ListNode* after, ListNode* newValue) {
+		// KLIB_ASSERT(before != nullptr);
+		// KLIB_ASSERT(before->next == after);
+		// KLIB_ASSERT(after->prev == before);
 
-			(elem->*list_data).next = elem;
-			(elem->*list_data).prev = elem;
-			m_head = m_tail = elem;
-		} else {
+		before->next = newValue;
+		newValue->prev = before;
 
-			(m_tail->*list_data).next = elem;
-			(elem->*list_data).prev = m_tail;
+		newValue->next = after;
+		after->prev = newValue;
+	}
 
-			(elem->*list_data).next = m_head;
-			(m_head->*list_data).prev = elem;
-		}
+	void insertAfter(ListNode* existing, ListNode* newData) {
+		ListNode* after = existing->next;
+
+		existing->next = newData;
+		newData->prev = existing;
+
+		newData->next = after;
+		after->prev = newData;
+	}
+
+	void remove(ListNode* node) {
+		// KLIB_ASSERT(node != &header_);
+		ListNode* before = node->prev;
+		ListNode* after = node->next;
+		before->next = after;
+		after->prev = before;
 	}
 
   public:
 	typedef ListIterator<T, list_data> Iterator;
-	constexpr List() : m_head(nullptr), m_tail(nullptr) {}
+	// constexpr List(){}
+
+	// void insertAfter(T* existing, T* newElement) {}
 
 	void insert_head(T* elem) {
-		insert(elem);
-		m_head = elem;
-		if (m_tail == nullptr) {
-			m_tail = elem;
-		}
+		insertBetween(&header_, header_.next, &(elem->*list_data));
 	}
 
 	void insert_tail(T* elem) {
-		insert(elem);
-		m_tail = elem;
-		if (m_head == nullptr) {
-			m_head = elem;
-		}
+		insertBetween(header_.prev, &header_, &(elem->*list_data));
 	}
 
-	T* remove_head() { remove(m_head); }
+	// T* remove_head() { remove(m_head); }
 
-	void remove(T* elem) {
-		T* next = (elem->*list_data).next;
-		T* prev = (elem->*list_data).prev;
-		// assert(prev != NULL);
-		// assert(next != NULL);
-		if (next == elem) {
-			// assert(prev == elem);
-			// assert(elem == m_head);
-			// assert(elem == m_tail);
-			m_head = m_tail = nullptr;
-			// TODO do we want to set new values of next and prev?
-			return;
-		}
-		(prev->*list_data).next = next;
-		(next->*list_data).prev = prev;
+	void remove(T* elem) { remove(elem->*list_data); }
 
-		if (m_head == elem) {
-			m_head = next;
+	T* head() {
+		if (header_.next == &header_) {
+			return nullptr;
 		}
-		if (m_tail == elem) {
-			m_tail = prev;
-		}
+		return itemFromNode(header_.next);
 	}
 
-	T* head() { return m_head; }
+	T* tail() {
+		if (header_.next == &header_) {
+			return nullptr;
+		}
+		return itemFromNode(header_.prev);
+	}
 
-	T* tail() { return m_tail; }
+	Iterator begin() { return Iterator(header_.next); }
 
-	Iterator begin() { return Iterator(m_head); }
+	Iterator end() { return Iterator(header_); }
 
-	Iterator end() { return Iterator(m_tail); }
+	void insertAfter(T* existing, T* value) {
+		insertAfter(&(existing->*list_data), &(value->*list_data));
+	}
+
+	void insertAfter(const Iterator it, T* value) { insertAfter(*it, value); }
 };
+
 } // namespace intrusive
 } // namespace klib
 

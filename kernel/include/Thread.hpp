@@ -95,7 +95,7 @@ class ThreadStack {
 struct Thread {
 	int id;
 	arch::Context state; // TODO rename to context?
-	klib::intrusive::ListHook<Thread> _listHook;
+	klib::intrusive::ListNode _listHook;
 	ThreadStack stack;
 };
 

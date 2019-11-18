@@ -34,8 +34,8 @@
 using namespace klib::intrusive;
 
 struct TestStruct {
-	ListHook<TestStruct> list_info;
-	ListHook<TestStruct> other_list;
+	ListNode list_info;
+	ListNode other_list;
 	int a;
 };
 
@@ -167,6 +167,23 @@ TEST(ListTest, MixedInsert) {
 	ASSERT_EQ(list.head(), &a);
 	ASSERT_EQ(list.tail(), &h);
 	CHECK_LIST(list, &a, &b, &c, &d, &e, &f, &g, &h);
+}
+
+TEST(ListTest, InsertAfter) {
+	TestStruct a, b, c, d;
+	MyList list;
+
+	list.insert_head(&a);
+	CHECK_LIST(list, &a);
+
+	list.insertAfter(list.begin(), &b);
+	CHECK_LIST(list, &a, &b);
+
+	list.insert_tail(&d);
+	CHECK_LIST(list, &a, &b, &d);
+
+	list.insertAfter(&b, &c);
+	CHECK_LIST(list, &a, &b, &c, &d);
 }
 
 /* Test that an element can be in multiple lists at the same time */
