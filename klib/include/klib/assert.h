@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Devin Nakamura
+ * Copyright (c) 2019, Devin Nakamura
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,20 +26,30 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#ifndef KLIB_H
-#define KLIB_H
+#ifndef KLIB_ASSERT_H
+#define KLIB_ASSERT_H
 
-#include <stddef.h>
-#include <stdint.h>
+#include <klib.h>
 
-#if __cplusplus >= 201703L
-#define KLIB_NORETURN [[noreturn]]
-#define KLIB_UNUSED [[unused]]
-#define KLIB_FORCEINLINE [[gnu::always_inline]]
-#else
-#define KLIB_FORCEINLINE __attribute__((always_inline))
+#ifdef __cplusplus
+extern "C" {
+#endif
+KLIB_NORETURN void klib_assertion_failed(const char* file, int line,
+                                         const char* function, const char* expr,
+                                         const char* msg);
+#ifdef __cplusplus
+}
 #endif
 
-#ifndef INTRUSIVE_TEST
-#endif
+// Hack until we have string formatting in kernel panic
+#define KLIB_FAILED_HACK(f, l, fn, e, m)                                       \
+	klib_assertion_failed("", 0, "", "", f " " e " " m)
+
+#define KLIB_ASSERT(expr)                                                      \
+	if (!(expr)) {                                                             \
+		KLIB_FAILED_HACK(__FILE__, __LINE__, __func__, #expr, "");             \
+	}
+
+#define KLIB_PANIC(msg) KLIB_FAILED_HACK(__FILE__, __LINE__, __func__, "", msg)
+
 #endif
