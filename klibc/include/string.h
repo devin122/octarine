@@ -26,9 +26,6 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#ifdef INTRUSIVE_TEST
-#include_next <string.h>
-#else
 #ifndef STRING_H
 #define STRING_H
 
@@ -63,6 +60,5 @@ size_t strxfrm(char* dest, const char* src, size_t n);
 
 #ifdef __cplusplus
 }
-#endif
 #endif
 #endif

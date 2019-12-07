@@ -36,7 +36,7 @@ target_link_libraries(intrusive_test
 
 target_include_directories(intrusive_test
 	PRIVATE
-		$<TARGET_PROPERTY:klib,INTERFACE_INCLUDE_DIRECTORIES>
+		../include
 )
 
 target_compile_definitions(intrusive_test PRIVATE INTRUSIVE_TEST)
