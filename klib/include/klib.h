@@ -47,11 +47,13 @@ extern "C" {
 void* tlsf_malloc(size_t);
 void tlsf_free(void*);
 void* tlsf_realloc(void*, size_t);
+#ifndef INTRUSIVE_TEST
 static inline void* malloc(size_t size) { return tlsf_malloc(size); }
 static inline void free(void* ptr) { tlsf_free(ptr); }
 static inline void* realloc(void* ptr, size_t size) {
 	return tlsf_realloc(ptr, size);
 }
+#endif
 // This needs to be implemented by consumer
 KLIB_NORETURN void klib_assertion_failed(const char* file, int line,
                                          const char* function, const char* expr,
