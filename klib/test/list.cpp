@@ -73,22 +73,22 @@ TEST(ListTest, InsertHead) {
 
 	TestStruct a, b, c, d;
 
-	list.insert_head(&a);
+	list.insertHead(&a);
 	ASSERT_EQ(list.head(), &a);
 	ASSERT_EQ(list.tail(), &a);
 	CHECK_LIST(list, &a);
 
-	list.insert_head(&b);
+	list.insertHead(&b);
 	ASSERT_EQ(list.head(), &b);
 	ASSERT_EQ(list.tail(), &a);
 	CHECK_LIST(list, &b, &a);
 
-	list.insert_head(&c);
+	list.insertHead(&c);
 	ASSERT_EQ(list.head(), &c);
 	ASSERT_EQ(list.tail(), &a);
 	CHECK_LIST(list, &c, &b, &a);
 
-	list.insert_head(&d);
+	list.insertHead(&d);
 	ASSERT_EQ(list.head(), &d);
 	ASSERT_EQ(list.tail(), &a);
 	CHECK_LIST(list, &d, &c, &b, &a);
@@ -101,24 +101,24 @@ TEST(ListTest, InsertTail) {
 
 	TestStruct a, b, c, d;
 
-	list.insert_tail(&a);
+	list.insertHead(&a);
 
 	ASSERT_EQ(list.head(), &a);
 	ASSERT_EQ(list.tail(), &a);
 	CHECK_LIST(list, &a);
 
-	list.insert_tail(&b);
+	list.insertTail(&b);
 
 	ASSERT_EQ(list.head(), &a);
 	ASSERT_EQ(list.tail(), &b);
 	CHECK_LIST(list, &a, &b);
 
-	list.insert_tail(&c);
+	list.insertTail(&c);
 	ASSERT_EQ(list.head(), &a);
 	ASSERT_EQ(list.tail(), &c);
 	CHECK_LIST(list, &a, &b, &c);
 
-	list.insert_tail(&d);
+	list.insertTail(&d);
 	ASSERT_EQ(list.head(), &a);
 	ASSERT_EQ(list.tail(), &d);
 	CHECK_LIST(list, &a, &b, &c, &d);
@@ -128,42 +128,42 @@ TEST(ListTest, MixedInsert) {
 	TestStruct a, b, c, d, e, f, g, h;
 	MyList list;
 
-	list.insert_head(&d);
+	list.insertHead(&d);
 	ASSERT_EQ(list.head(), &d);
 	ASSERT_EQ(list.tail(), &d);
 	CHECK_LIST(list, &d);
 
-	list.insert_tail(&e);
+	list.insertTail(&e);
 	ASSERT_EQ(list.head(), &d);
 	ASSERT_EQ(list.tail(), &e);
 	CHECK_LIST(list, &d, &e);
 
-	list.insert_head(&c);
+	list.insertHead(&c);
 	ASSERT_EQ(list.head(), &c);
 	ASSERT_EQ(list.tail(), &e);
 	CHECK_LIST(list, &c, &d, &e);
 
-	list.insert_tail(&f);
+	list.insertTail(&f);
 	ASSERT_EQ(list.head(), &c);
 	ASSERT_EQ(list.tail(), &f);
 	CHECK_LIST(list, &c, &d, &e, &f);
 
-	list.insert_head(&b);
+	list.insertHead(&b);
 	ASSERT_EQ(list.head(), &b);
 	ASSERT_EQ(list.tail(), &f);
 	CHECK_LIST(list, &b, &c, &d, &e, &f);
 
-	list.insert_tail(&g);
+	list.insertTail(&g);
 	ASSERT_EQ(list.head(), &b);
 	ASSERT_EQ(list.tail(), &g);
 	CHECK_LIST(list, &b, &c, &d, &e, &f, &g);
 
-	list.insert_head(&a);
+	list.insertHead(&a);
 	ASSERT_EQ(list.head(), &a);
 	ASSERT_EQ(list.tail(), &g);
 	CHECK_LIST(list, &a, &b, &c, &d, &e, &f, &g);
 
-	list.insert_tail(&h);
+	list.insertTail(&h);
 	ASSERT_EQ(list.head(), &a);
 	ASSERT_EQ(list.tail(), &h);
 	CHECK_LIST(list, &a, &b, &c, &d, &e, &f, &g, &h);
@@ -173,13 +173,13 @@ TEST(ListTest, InsertAfter) {
 	TestStruct a, b, c, d;
 	MyList list;
 
-	list.insert_head(&a);
+	list.insertHead(&a);
 	CHECK_LIST(list, &a);
 
 	list.insertAfter(list.begin(), &b);
 	CHECK_LIST(list, &a, &b);
 
-	list.insert_tail(&d);
+	list.insertTail(&d);
 	CHECK_LIST(list, &a, &b, &d);
 
 	list.insertAfter(&b, &c);
@@ -192,16 +192,16 @@ TEST(ListTest, MultipleLists) {
 	MyList list1;
 	OtherList list2;
 
-	list1.insert_head(&a);
-	list1.insert_head(&b);
-	list1.insert_head(&c);
-	list1.insert_head(&d);
+	list1.insertHead(&a);
+	list1.insertHead(&b);
+	list1.insertHead(&c);
+	list1.insertHead(&d);
 	CHECK_LIST(list1, &d, &c, &b, &a);
 
-	list2.insert_tail(&a);
-	list2.insert_tail(&b);
-	list2.insert_tail(&c);
-	list2.insert_tail(&d);
+	list2.insertTail(&a);
+	list2.insertTail(&b);
+	list2.insertTail(&c);
+	list2.insertTail(&d);
 	CHECK_LIST(list1, &d, &c, &b, &a);
 	CHECK_LIST(list2, &a, &b, &c, &d);
 }

@@ -124,15 +124,15 @@ class List {
 
 	// void insertAfter(T* existing, T* newElement) {}
 
-	void insert_head(T* elem) {
+	void insertHead(T* elem) {
 		insertBetween(&header_, header_.next, &(elem->*list_data));
 	}
 
-	void insert_tail(T* elem) {
+	void insertTail(T* elem) {
 		insertBetween(header_.prev, &header_, &(elem->*list_data));
 	}
 
-	T* remove_head() {
+	T* removeHead() {
 		ListNode* node = header_.next;
 		if (node != &header_) {
 			remove(node);

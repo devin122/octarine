@@ -66,7 +66,7 @@ void Scheduler::Init() {
 	Thread* thread = (Thread*)malloc(sizeof(Thread));
 	KASSERT(thread != nullptr);
 	thread->id = 0;
-	all_threads.insert_tail(thread);
+	all_threads.insertTail(thread);
 	currentThread = all_threads.begin();
 }
 
@@ -133,7 +133,7 @@ Thread* Scheduler::impl::_InitThread(ThreadStack stack,
 
 	thread->stack = stack;
 
-	all_threads.insert_tail(thread);
+	all_threads.insertTail(thread);
 
 	KASSERT(*currentThread != nullptr);
 	return thread;
