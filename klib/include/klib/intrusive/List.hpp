@@ -132,9 +132,17 @@ class List {
 		insertBetween(header_.prev, &header_, &(elem->*list_data));
 	}
 
-	// T* remove_head() { remove(m_head); }
+	T* remove_head() {
+		ListNode* node = header_.next;
+		if (node != &header_) {
+			remove(node);
+			return itemFromNode(node);
+		} else {
+			return nullptr;
+		}
+	}
 
-	void remove(T* elem) { remove(elem->*list_data); }
+	void remove(T* elem) { remove(&(elem->*list_data)); }
 
 	T* head() {
 		if (header_.next == &header_) {
