@@ -25,16 +25,14 @@
 # SPDX-License-Identifier: BSD-2-Clause
 ################################################################################
 
-add_subdirectory(test)
-
 set_kernel_flags()
-
-add_library(klib
-    cxxabi.cpp
+add_library(klibc STATIC
+	string/memchr.c
+	string/memcmp.c
+	string/memcpy.c
+	string/memset.c
+	string/strcat.c
+	string/strcpy.c
+	string/strlen.c
 )
-target_include_directories(klib
-    PUBLIC include)
-target_link_libraries(klib
-    PUBLIC
-        klibc
-)
+target_include_directories(klibc PUBLIC include)

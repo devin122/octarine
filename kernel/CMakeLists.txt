@@ -52,6 +52,7 @@ target_link_libraries(kernel
 	klib
 	tlsf
 	arch_includes
+	klibc
 	libcxx
 )
 
