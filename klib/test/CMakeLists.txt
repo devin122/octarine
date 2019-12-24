@@ -26,6 +26,7 @@
 ################################################################################
 
 add_executable(intrusive_test
+	klib_support.cpp
 	list.cpp
 )
 

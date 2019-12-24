@@ -26,32 +26,12 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
-#ifndef KLIB_ASSERT_H
-#define KLIB_ASSERT_H
+#include <gtest/gtest.h>
+#include <klib/assert.h>
 
-#include <klib.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-#ifndef INTRUSIVE_TEST
-KLIB_NORETURN
-#endif
-void klib_assertion_failed(const char* file, int line, const char* function,
-                           const char* expr, const char* msg);
-#ifdef __cplusplus
+extern "C" void klib_assertion_failed(const char* file, int line,
+                                      const char* function, const char* expr,
+                                      const char* msg) {
+	// TODO : We should be propagating file/line info if possible
+	ASSERT_TRUE(false);
 }
-#endif
-
-// Hack until we have string formatting in kernel panic
-#define KLIB_FAILED_HACK(f, l, fn, e, m)                                       \
-	klib_assertion_failed("", 0, "", "", f " " e " " m)
-
-#define KLIB_ASSERT(expr)                                                      \
-	if (!(expr)) {                                                             \
-		KLIB_FAILED_HACK(__FILE__, __LINE__, __func__, #expr, "");             \
-	}
-
-#define KLIB_PANIC(msg) KLIB_FAILED_HACK(__FILE__, __LINE__, __func__, "", msg)
-
-#endif

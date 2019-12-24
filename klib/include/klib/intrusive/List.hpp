@@ -29,7 +29,7 @@
 #ifndef KLIB_INTRUSIVE_LIST_HPP
 #define KLIB_INTRUSIVE_LIST_HPP
 
-//#include <klib.h>
+#include <klib/assert.h>
 #include <klib/util.hpp>
 
 namespace klib {
@@ -89,9 +89,9 @@ class List {
 	}
 
 	void insertBetween(ListNode* before, ListNode* after, ListNode* newValue) {
-		// KLIB_ASSERT(before != nullptr);
-		// KLIB_ASSERT(before->next == after);
-		// KLIB_ASSERT(after->prev == before);
+		KLIB_ASSERT(before != nullptr);
+		KLIB_ASSERT(before->next == after);
+		KLIB_ASSERT(after->prev == before);
 
 		before->next = newValue;
 		newValue->prev = before;
@@ -111,7 +111,8 @@ class List {
 	}
 
 	void remove(ListNode* node) {
-		// KLIB_ASSERT(node != &header_);
+		KLIB_ASSERT(node != &header_);
+
 		ListNode* before = node->prev;
 		ListNode* after = node->next;
 		before->next = after;
