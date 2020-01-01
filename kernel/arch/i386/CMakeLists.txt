@@ -59,5 +59,6 @@ target_include_directories(arch_kernel
 set_target_properties(kernel
     PROPERTIES
         LINKER_LANGUAGE "ASM_NASM"
-        LINK_FLAGS "-T${CMAKE_CURRENT_SOURCE_DIR}/multiboot.ld -melf_i386"
+        LINK_FLAGS "-T${CMAKE_CURRENT_SOURCE_DIR}/kernel.ld -melf_i386 -Map=kernel.map"
+        LINK_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/kernel.ld"
 )

@@ -31,7 +31,7 @@ align 8
 GDT:
 ; First GDT entry is null and never refrenced, so we use it as a place to store the gdt descriptor
 dw GDT_end - GDT - 1 ;length of GDT
-dd GDT - KERNEL_VIRTUAL_BASE ;pointer to start of GDT
+dd GDT ;pointer to start of GDT
 dw 0 ;pad out to length of GDT entry
 
 
@@ -48,14 +48,14 @@ dw 0xFFFF, 0
 db 0, 0x92, 0xCF, 0
 
 ; -- 16 bit real mode CS --
-; base = 0x00000000, limit 0x0FFFF (1 B Granularity), present
+; base = 0x00000000, limit 0xFFFFF (4k Granularity), present
 ; type = 16 bit code execute/read only/conforming, DPL = 0
 dw 0xFFFF, 0
-db 0, 0x9E, 0, 0
+db 0, 0x9E, 0x8F, 0
 
 ; -- 16 bit real mode DS --
-; base = 0x00000000, limit 0x0FFFF (1 B Granularity), present
+; base = 0x00000000, limit 0xFFFFF (4k Granularity), present
 ; type = 16 bit data read/write, DPL = 0
 dw 0xFFFF, 0
-db 0, 0x92, 0, 0
+db 0, 0x92, 0x8F, 0
 GDT_end:

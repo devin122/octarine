@@ -31,6 +31,7 @@ PG_USER     equ 1 << 2
 PG_WT       equ 1 << 3 ; write through
 PG_SZ       equ 1 << 7 ; size bit
 
+extern KERNEL_LOAD_ADDRESS
 ;ie ignore last 12 bits
 PAGE_ADDR_MASK equ 0xFFC00000
 BOOTSTRAP_PAGE_SIZE equ 1024 * 1024 * 4
@@ -53,20 +54,22 @@ extern end_ctors
 extern start_dtors
 extern end_dtors
 
-global _multibootEntry
+extern biostest
+
+global _multibootEntry:function
 
 
-section .text
+section .unpaged_text
 
 _multibootEntry:
     cli
 
     ;first we want to save the bootdrive
-    mov [mbinfo - KERNEL_VIRTUAL_BASE], ebx
-    mov [mbmagic - KERNEL_VIRTUAL_BASE], eax
+    mov [mbinfo], ebx
+    mov [mbmagic], eax
 
     ;Install our own GDT
-    lgdt [GDT - KERNEL_VIRTUAL_BASE]
+    lgdt [GDT]
     mov AX, SEG_KERN_DATA
     mov DS, AX
     mov ES, AX
@@ -74,11 +77,11 @@ _multibootEntry:
     mov GS, AX
     mov SS, AX
 
-    jmp SEG_KERN_CODE:.update_cs-KERNEL_VIRTUAL_BASE
+    jmp SEG_KERN_CODE:.update_cs
     .update_cs:
 
     ; set up paging
-    mov eax, (bootstrap_page_dir - KERNEL_VIRTUAL_BASE) ; Get physical addr of the page dir
+    mov eax, bootstrap_page_dir ; Get physical addr of the page dir
     mov cr3, eax  ; set page dir register
 
     ; set the PSE bit to enable 4 mb pages
@@ -142,14 +145,14 @@ call_destructors:
 
     ret
 
-section .bss
+section .unpaged_bss
 
     mbinfo resb 4
     mbmagic resb 4
 
     boot_stack: resb BOOT_STACK_SIZE
 
-section .data
+section .unpaged_data
 %include "/gdt.mac"
 
 

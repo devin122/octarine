@@ -155,8 +155,8 @@ const multiboot_header _mbootHeader = {
     .flags = MULTIBOOT_AOUT_KLUDGE,
     .checksum =
         (uint32_t)(0 - (MULTIBOOT_HEADER_MAGIC + MULTIBOOT_AOUT_KLUDGE)),
-    .header_addr = (uint32_t)&_mbootHeader - KERNEL_VIRTUAL_BASE,
+    .header_addr = (uint32_t)&_mbootHeader,
     .load_addr = (uint32_t)&KERNEL_LOAD_ADDRESS,
     .load_end_addr = (uint32_t)&end_load,
     .bss_end_addr = (uint32_t)&ebss,
-    .entry_addr = (uint32_t)&mboot_phys_entry};
+    .entry_addr = (uint32_t)&_multibootEntry};

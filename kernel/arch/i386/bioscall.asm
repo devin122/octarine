@@ -32,10 +32,11 @@ use32
 
 extern protToReal
 extern realToProt
+extern KERNEL_UNPAGED_BASE
 
-segment .lowtext
+segment .unpaged_text
 
-global callBios
+global callBios:function
 ;void callBios(int callnum, Registers *registers)
 callBios:
     ;Stack layout
@@ -74,10 +75,20 @@ callBios:
     mov di, [ebx + Registers.di]
     mov ebx, [ebx + Registers.ebx]
 
-    ;TODO: double check about invalidating instruction cache
 
     call protToReal
     USE16
+    ; save our old stack pointer
+    mov eax, esp
+    mov [dword saved_stack], eax
+    ;change to new stack
+    mov eax, bioscallStack
+    sub eax, KERNEL_UNPAGED_BASE
+    mov esp, eax
+    mov eax, KERNEL_UNPAGED_BASE
+    shr eax, 4
+    mov ss, ax
+
     ;this is self modifying code
 
     ;mov ax, imm16
@@ -98,19 +109,16 @@ callBios:
         .intnum: db 0
 
     push eax
-    xor ax,ax
-    mov ds, ax
-    pop eax
+    push ecx
+    push edx
+    push ds
 
-    mov [.eaxval], eax
-    pushf
-    pop ax
-    mov [.esval], ax ;save flags register in esval
-
-    call dword realToProt
+    mov eax, realToProt
+    sub eax, KERNEL_UNPAGED_BASE
+    call eax
     USE32
 
-    push ebx 
+    push ebx
     mov ebx, [ebp + 12] ;pointer to regs
 
     mov eax, [.eaxval]
@@ -129,3 +137,12 @@ callBios:
     leave
     ret
 
+segment .unpaged_data
+
+segment .unpaged_bss
+saved_stack:
+    resd 1
+
+
+    resw 32
+bioscallStack:

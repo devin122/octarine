@@ -29,28 +29,23 @@ REAL_MODE_DATA_SEG equ 4 << 3
 REAL_MODE_CODE_SEG equ 3 << 3
 
 REAL_MODE_STACK_BASE equ 0x2000
-KERNEL_VIRTUAL_BASE equ 0xC0000000
+extern KERNEL_UNPAGED_BASE
 
-
-SEGMENT .lowtext
+SEGMENT .unpaged_text
 
 global protToReal
 
 protToReal:
+    cli
     ;get return address and put on real mode stack
-    pop DWORD [REAL_MODE_STACK_BASE - 4]
-    push ebp
 
     sidt [prot_idt]
     o16 lidt [real_idt]
-    
+
+    sgdt [saved_gdtr]
+
     mov eax, cr3
     mov [saved_page_dir], eax
-
-    ;save our position on the stack
-    mov eax, esp
-    mov [savedSP], eax
-
 
     ;set segment registers
     mov ax, REAL_MODE_DATA_SEG
@@ -59,13 +54,6 @@ protToReal:
     mov fs, ax
     mov gs, ax
     mov ss, ax
-
-
-
-    ;set up real mode stack
-    mov eax, REAL_MODE_STACK_BASE - 4
-    mov esp, eax
-    mov ebp, eax
 
     jmp REAL_MODE_CODE_SEG:.temp_real_code
 
@@ -77,46 +65,42 @@ protToReal:
     mov cr0, eax
     and al, 0xFE ;PE flag is bit 0
     mov cr0, eax
-    jmp  0:.real_mode
+    jmp dword 0xFFFF:(.real_mode - (0xFFFF * 16))
 
 .real_mode:
-    ;reload all the segment registers
-    xor ax, ax
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-    mov ss, ax
-    sti ;we want to re-enable interrupts
-    
-    o32 ret
+    ; Calculate the return address
+    ; Note: we will fail horribly if it is outside the addressable range
+    mov eax, [esp]
+    add esp, 4
+    sub eax, KERNEL_UNPAGED_BASE
+    jmp ax
 
 global realToProt
 realToProt:
     cli
+    mov ecx, KERNEL_UNPAGED_BASE
+    mov eax, saved_gdtr
+    sub eax, ecx
+    shr ecx, 4
+    mov ds, ecx
     ; Note lgdt [X] is implictly lgdt [DS:x]
-    xor ax, ax
-    mov ds, ax
-    lgdt [GDT - KERNEL_VIRTUAL_BASE]
+    lgdt [eax]
 
-    ;Load the page directory
-    mov eax, [saved_page_dir]
-    mov cr3, eax
-
+    ; Enable protected mode
     mov eax, cr0
     or al, 1 ;set p-mode bit
     mov cr0, eax
 
+    ;save the old cs value, needed later to calculate return address
+    mov ecx, cs
+
     ;we need to replace the CS descriptor cached value with one from
     ;the GDT
-    jmp  08h:.pmode_start
+    jmp dword 08h:.pmode_start
+
+
 .pmode_start:
     [Bits 32]
-
-    ;enable paging
-    mov eax, cr0
-    or eax, 0x80000000 ; set paging bit
-    mov cr0, eax
 
     ;lets update all the data segment descriptors
     mov AX, 0x10 ;ie the 3rd gdt entry
@@ -124,38 +108,46 @@ realToProt:
     mov ES, AX
     mov FS, AX
     mov GS, AX
-    mov SS, AX
-    
+
+    ; recalculate stack pointer
+    mov eax, ss
+    shl eax, 4
+    add esp, eax
+
+    ; restore stack segment
+    mov ax, 0x10
+    mov ss, ax
+
+    ;Load the page directory
+    mov eax, [saved_page_dir]
+    mov cr3, eax
+
+    ;enable paging
+    mov eax, cr0
+    or eax, 0x80000000 ; set paging bit
+    mov cr0, eax
+
     ;restore idt
     lidt [prot_idt]
 
-    ;grab the return address before we wipe it out
-    pop WORD [REAL_MODE_STACK_BASE -2]
-    mov eax, [savedSP]
-    mov esp, eax
-    pop ebp
-    
-    
-    ;put the return address on the new stack
-    xor eax, eax
-    mov ax, [REAL_MODE_STACK_BASE - 2]
-    push eax
-o16    ret
+    ;calculate the return address
+    xor eax,eax
+    pop ax
+    shl ecx, 4
+    add eax, ecx
+    jmp eax ; return
 
-section .lowdata
+section .unpaged_data
 saved_page_dir: dd 0
+
 real_idt:
     dw 0x3FF
     dd 0
 
-%include "/gdt.mac"
-
 prot_idt:
     dw 0
     dd 0
-	
-;segment .bss
 
-saved_idt dq 0
-realidt dq 0
-savedSP dq 0
+saved_gdtr:
+    dw 0
+    dd 0
