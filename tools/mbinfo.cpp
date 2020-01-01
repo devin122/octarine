@@ -109,6 +109,21 @@ static void print_header(const multiboot_header* header) {
 	}
 }
 
+static void check_header(const multiboot_header* header) {
+	if (header->flags & MULTIBOOT_AOUT_KLUDGE) {
+		if (header->load_end_addr <= header->load_addr) {
+			puts("WARNING: load_end_addr <= load_addr");
+		}
+		if (header->bss_end_addr < header->load_end_addr) {
+			puts("WARNING: bss_end_addr < load_end_addr");
+		}
+		if ((header->entry_addr < header->load_addr) ||
+		    (header->entry_addr >= header->load_end_addr)) {
+			puts("WARNING entry_addr outside of load address range");
+		}
+	}
+}
+
 static void process_file(const char* filename) {
 	ifstream f;
 	f.open(filename);
@@ -119,6 +134,7 @@ static void process_file(const char* filename) {
 	}
 	puts(filename);
 	print_header(header.get());
+	check_header(header.get());
 	f.close();
 	puts("\n");
 }
