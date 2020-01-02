@@ -38,7 +38,7 @@ namespace intrusive {
 struct ListNode {
 	ListNode* prev = nullptr;
 	ListNode* next = nullptr;
-	// constexpr ListNode()
+	constexpr ListNode() = default;
 };
 
 template <typename T, ListNode T::*list_data>
@@ -120,6 +120,7 @@ class List {
 	}
 
   public:
+	constexpr List() = default;
 	typedef ListIterator<T, list_data> Iterator;
 	// constexpr List(){}
 
